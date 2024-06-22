@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - main
-  paths:
-    - "./prisma/migrations/**" # Only run this workflow when migrations are updated
+    paths:
+      - "./saikyo-anki-app/prisma/migrations/**" # Only run this workflow when migrations are updated
 
 jobs:
   deploy:
