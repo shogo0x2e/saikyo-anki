@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import GoogleProvider from "next-auth/providers/google";
-import NextAuth from "next-auth"
+import NextAuth from "next-auth";
 
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
 
