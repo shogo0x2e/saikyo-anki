@@ -3,6 +3,7 @@ import "./globals.css";
 import { Noto_Sans_JP } from "next/font/google";
 import Header from "../components/Header";
 import { cn } from "@/lib/utils";
+import NextAuthProvider from "@/provider/next-auth";
 
 const NotoSansJP = Noto_Sans_JP({
   weight: ["400", "700"],
@@ -26,11 +27,11 @@ export default function RootLayout({
         className={cn(
           `min-h-screen bg-background font-sans antialiased 
           flex flex-col h-screen overflow-hidden
-          ${NotoSansJP.className}`
+          ${NotoSansJP.className}`,
         )}
       >
         <Header></Header>
-        {children}
+        <NextAuthProvider>{children}</NextAuthProvider>
       </body>
     </html>
   );

@@ -1,4 +1,9 @@
 "use client";
+
+import Login from "@/component/auth/login";
+import Logout from "@/component/auth/logout";
+import { useSession } from "next-auth/react";
+("use client");
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -41,15 +46,7 @@ import wordsData from "./dumm";
 const datas = wordsData;
 
 export default function Home() {
-  //コンボボックス
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-
-  useEffect(() => {
-    console.log("Search");
-    console.log(sortVariables);
-  }, []);
-
+  const { data: session, status } = useSession();
   return (
     <main className="flexgrow flex justify-center  lg:mx-8 h-main">
       <div className="mt-8">
@@ -65,7 +62,7 @@ export default function Home() {
               >
                 {value
                   ? sortVariables.find(
-                      (sortVariable) => sortVariable.value === value
+                      (sortVariable) => sortVariable.value === value,
                     )?.label
                   : "Select"}
                 <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -91,7 +88,7 @@ export default function Home() {
                             "mr-2 h-4 w-4",
                             value === sortVariable.value
                               ? "opacity-100"
-                              : "opacity-0"
+                              : "opacity-0",
                           )}
                         />
                         {sortVariable.label}
