@@ -50,10 +50,15 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
+  //フリーワード検索
+  const [inputValue, setInputValue] = useState("");
+  const [showDatas, setShowDatas] = useState(datas);
+
   useEffect(() => {
     console.log("Search");
     console.log(sortVariables);
   }, []);
+
   return (
     <main className="flexgrow flex justify-center  lg:mx-8 h-main">
       <div className="mt-8">
