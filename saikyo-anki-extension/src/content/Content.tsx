@@ -14,8 +14,8 @@ const Content = (props: DialogBoxProps & { orect: DOMRect }) => {
       <div
         style={{
           position: 'absolute',
-          left: window.scrollX + props.orect.left,
-          top: window.scrollY + props.orect.bottom + 10,
+          left: window.scrollX + props.orect[0].left,
+          top: window.scrollY + props.orect[0].bottom + 10,
           zIndex: 2147483550,
         }}
       >

@@ -1,4 +1,4 @@
-import { translate } from '../app/translate';
+import { generateDescription } from '../app/generateDescription';
 
 import { getBucket } from '@extend-chrome/storage';
 
@@ -22,7 +22,9 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         const selectedText = info.selectionText !== undefined ? info.selectionText : '';
         const value = await bucket.get();
         const userTargetLang = value.targetLang ?? 'JA';
-        const translatedText = await translate(selectedText, userTargetLang);
+        const translatedText = await generateDescription(selectedText, userTargetLang);
+        
+        console.log("result:"+translatedText);
         let rtnPromise = chrome.tabs.sendMessage(tab.id as number, {
           type: 'SHOW',
           data: {
@@ -47,7 +49,8 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
     const selectedText = message.data.selectionText ?? '';
     const value = await bucket.get();
     const userTargetLang = value.targetLang ?? 'JA';
-    const translatedText = await translate(selectedText, userTargetLang);
+    const translatedText = await generateDescription(selectedText, userTargetLang);
+    
     let rtnPromise = chrome.tabs.sendMessage(sender.tab?.id as number, {
       type: 'SHOW',
       data: {

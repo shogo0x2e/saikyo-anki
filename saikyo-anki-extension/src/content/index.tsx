@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import Content from './Content';
 import { MantineProvider } from '@mantine/core';
 import { ActionIcon, Image, Tooltip } from '@mantine/core';
+import { SessionStorageController}   from './sessionStorageController';
 
 
 chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
@@ -15,25 +16,27 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       if (selection.toString().length === 0) {
         return;
       }
-      if (document.getElementsByTagName('my-extension-root').length > 0) {
-        document.getElementsByTagName('my-extension-root')[0].remove();
-      }
 
+      const extentionRootLength = document.getElementsByTagName('my-extension-root').length;
+      SessionStorageController.addTmpText('translatedText', message.data.translatedText.toString());
+      SessionStorageController.addTmpText('originalText', message.data.originalText.toString());
+      if(extentionRootLength === 0) {
+        SessionStorageController.removeTmpText('rect');
+        SessionStorageController.addTmpText('rect', rectToJson(oRect));
+      }
 
       const container = document.createElement('my-extension-root');
       document.body.after(container);
-
       createRoot(container).render(
-        <React.StrictMode>
+        
           <MantineProvider>
             <Content
-              orect={oRect}
-              translatedText={message.data.translatedText.toString()}
-              originalText={message.data.originalText.toString()}
-              targetLang={message.data.lang.toString()}
+              orect={jsonToRects(SessionStorageController.getTmpTexts('rect'))}
+              translatedText={SessionStorageController.getTmpTexts('translatedText')}
+              originalText={SessionStorageController.getTmpTexts('originalText')}
             />
           </MantineProvider>
-        </React.StrictMode>
+        
       );
     }
   }
@@ -72,6 +75,13 @@ document.addEventListener('mouseup', () => {
   }
 });
 
+//when the page is reloaded, remove the temporary data
+window.addEventListener('beforeunload', function(){
+  SessionStorageController.removeTmpText('translatedText');
+    SessionStorageController.removeTmpText('originalText');
+    SessionStorageController.removeTmpText('rect');
+});
+
 const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect }) => {
   const handleClick = async () => {
     for (let i = 0; i < document.getElementsByTagName('my-extension-root-icon').length; i++) {
@@ -97,7 +107,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
         width: '100%',
         left: '0px',
         top: '0px',
-        zIndex: 2147483550,
+        zIndex: 2147483551,
       }}
     >
       <div
@@ -105,7 +115,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
           position: 'absolute',
           left: window.scrollX + orect.right,
           top: window.scrollY + orect.bottom,
-          zIndex: 2147483550,
+          zIndex: 2147483551,
         }}
         onClick={handleClick}
       >
@@ -116,14 +126,14 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
             size="lg"
             sx={{
               boxShadow: '0 0 10px rgba(0,0,0,.3);',
-              zIndex: 2147483550,
+              zIndex: 2147483551,
             }}
           >
             <div
               style={{
                 width: '20px',
                 height: '20px',
-                zIndex: 2147483550,
+                zIndex: 2147483551,
               }}
             >
               <Image src={chrome.runtime.getURL('images/extension_128.png')} />
@@ -134,3 +144,35 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
     </div>
   );
 };
+
+function rectToJson(domRect:DOMRect): string {
+  const rectObj = {
+      x: domRect.x,
+      y: domRect.y,
+      width: domRect.width,
+      height: domRect.height,
+      top: domRect.top,
+      right: domRect.right,
+      bottom: domRect.bottom,
+      left: domRect.left
+  };
+
+  const json = JSON.stringify(rectObj);
+  return json;
+}
+
+function jsonToRects(jsonArray: string[]): { x: number, y: number, width: number, height: number, top: number, right: number, bottom: number, left: number }[] {
+  return jsonArray.map(json => {
+    const rectObj = JSON.parse(json);
+    return {
+      x: rectObj.x,
+      y: rectObj.y,
+      width: rectObj.width,
+      height: rectObj.height,
+      top: rectObj.top,
+      right: rectObj.right,
+      bottom: rectObj.bottom,
+      left: rectObj.left
+    };
+  });
+}
