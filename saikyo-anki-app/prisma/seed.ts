@@ -7,7 +7,6 @@ async function main() {
     data: {
       name: "John Doe",
       email: "john.doe@example.com",
-      emailVerified: new Date(),
     },
   });
 
@@ -15,7 +14,6 @@ async function main() {
     data: {
       name: "Jane Doe",
       email: "jane.doe@example.com",
-      emailVerified: new Date(),
     },
   });
 
