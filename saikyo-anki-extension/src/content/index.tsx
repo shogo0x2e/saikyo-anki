@@ -1,53 +1,136 @@
-import 'webextension-polyfill';
-import 'construct-style-sheets-polyfill';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { debounce } from 'lodash-es';
-import { twind, config, cssom, observe, stringify } from './twind';
-import { proxyStore } from '../app/proxyStore';
 import Content from './Content';
+import { MantineProvider } from '@mantine/core';
+import { ActionIcon, Image, Tooltip } from '@mantine/core';
 
-proxyStore.ready().then(() => {
-  const contentRoot = document.createElement('div');
-  contentRoot.id = 'my-extension-root';
-  contentRoot.style.display = 'contents';
-  document.body.append(contentRoot);
 
-  const shadowRoot = contentRoot.attachShadow({ mode: 'open' });
-  const sheet = cssom(new CSSStyleSheet());
+chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
+  if (message.type === 'SHOW') {
+    const selection = window.getSelection();
+    if (selection !== undefined && selection !== null && selection.toString() !== undefined) {
+      console.log("create dialog");
+      const oRange = selection.getRangeAt(0);
+      const oRect = oRange.getBoundingClientRect();
+      if (selection.toString().length === 0) {
+        return;
+      }
+      if (document.getElementsByTagName('my-extension-root').length > 0) {
+        document.getElementsByTagName('my-extension-root')[0].remove();
+      }
 
-  // shadowRoot.adoptedStyleSheet bug in firefox
-  // see: https://bugzilla.mozilla.org/show_bug.cgi?id=1827104
-  if (navigator?.userAgent.includes('Firefox')) {
-    const style = document.createElement('style');
-    const debouncedSyncCss = debounce(() => {
-      style.textContent += stringify(sheet.target);
-    }, 100);
 
-    const originalSheetInsert = sheet.insert;
-    (sheet.insert as typeof originalSheetInsert) = (...params) => {
-      originalSheetInsert(...params);
-      debouncedSyncCss();
-    };
-    shadowRoot.appendChild(style);
-  } else {
-    shadowRoot.adoptedStyleSheets = [sheet.target];
+      const container = document.createElement('my-extension-root');
+      document.body.after(container);
+
+      createRoot(container).render(
+        <React.StrictMode>
+          <MantineProvider>
+            <Content
+              orect={oRect}
+              translatedText={message.data.translatedText.toString()}
+              originalText={message.data.originalText.toString()}
+              targetLang={message.data.lang.toString()}
+            />
+          </MantineProvider>
+        </React.StrictMode>
+      );
+    }
   }
-
-  const tw = twind(config, sheet);
-  observe(tw, shadowRoot);
-
-  const shadowWrapper = document.createElement('div');
-  shadowWrapper.id = 'root';
-  shadowWrapper.style.display = 'contents';
-  shadowRoot.appendChild(shadowWrapper);
-
-  createRoot(shadowWrapper).render(
-    <React.StrictMode>
-      <Provider store={proxyStore}>
-        <Content />
-      </Provider>
-    </React.StrictMode>
-  );
 });
+
+document.addEventListener('mouseup', () => {
+  const selection = window.getSelection();
+
+  if (selection === undefined || selection === null) {
+    return;
+  }
+  // remove icon when no text is selected
+  if(selection.toString().length === 0) {
+    for (let i = 0; i < document.getElementsByTagName('my-extension-root-icon').length; i++) {
+      document.getElementsByTagName('my-extension-root-icon')[i].remove();
+    }
+    return;
+  }
+  if (selection.toString().length > 0) {
+    const oRange = selection.getRangeAt(0);
+    const oRect = oRange.getBoundingClientRect();
+    let container;
+    let root;
+
+    if (document.getElementsByTagName('my-extension-root-icon').length > 0) {
+      container = document.getElementsByTagName('my-extension-root-icon')[0];
+      root = container._reactRootContainer;
+    }else{  // create new icon
+      container = document.createElement('my-extension-root-icon');
+      document.body.after(container);
+      root = createRoot(container);
+      container._reactRootContainer = root;
+    }
+    // rerender icon
+    root.render(<Icon selectedText={selection.toString()} orect={oRect} />);
+  }
+});
+
+const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect }) => {
+  const handleClick = async () => {
+    for (let i = 0; i < document.getElementsByTagName('my-extension-root-icon').length; i++) {
+      document.getElementsByTagName('my-extension-root-icon')[i].remove();
+    }
+    let rtnPromise = chrome.runtime.sendMessage({
+      type: 'TRANSLATE',
+      data: {
+        selectionText: selectedText,
+      },
+    });
+    rtnPromise.then(() => {
+      //console.log('Message sent successfully');
+    }).catch((error) => {
+      console.error('Error sending message:', error);
+    });
+  };
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        width: '100%',
+        left: '0px',
+        top: '0px',
+        zIndex: 2147483550,
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: window.scrollX + orect.right,
+          top: window.scrollY + orect.bottom,
+          zIndex: 2147483550,
+        }}
+        onClick={handleClick}
+      >
+        <Tooltip label="選択したテキストを翻訳" withArrow>
+          <ActionIcon
+            radius="xl"
+            variant="default"
+            size="lg"
+            sx={{
+              boxShadow: '0 0 10px rgba(0,0,0,.3);',
+              zIndex: 2147483550,
+            }}
+          >
+            <div
+              style={{
+                width: '20px',
+                height: '20px',
+                zIndex: 2147483550,
+              }}
+            >
+              <Image src={chrome.runtime.getURL('images/extension_128.png')} />
+            </div>
+          </ActionIcon>
+        </Tooltip>
+      </div>
+    </div>
+  );
+};
