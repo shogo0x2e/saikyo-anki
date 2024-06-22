@@ -1,8 +1,12 @@
 name: Deploy
+
 on:
   push:
     branches:
       - main
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
   deploy:
