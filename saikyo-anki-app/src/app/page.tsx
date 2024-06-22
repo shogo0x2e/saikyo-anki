@@ -59,11 +59,40 @@ export default function Home() {
     console.log(sortVariables);
   }, []);
 
+  const handleInputChanged = (e) => {
+    setInputValue(e.target.value);
+    search(e.target.value);
+  };
+
+  const search = (value) => {
+    if (value === "") {
+      setShowDatas(datas);
+      return;
+    }
+
+    const searchedDatas = datas.filter(
+      (data) =>
+        Object.values(data).filter(
+          (word) =>
+            word !== undefined &&
+            word !== null &&
+            word.toUpperCase().indexOf(value.toUpperCase()) !== -1,
+        ).length > 0,
+    );
+    setShowDatas(searchedDatas);
+  };
+
   return (
     <main className="flexgrow flex justify-center  lg:mx-8 h-main">
       <div className="mt-8">
         <div className="flex flex-wrap mx-8">
-          <Input className="w-[240px] mr-auto" placeholder="Search"></Input>
+          <Input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChanged}
+            className="w-[240px] mr-auto"
+            placeholder="Search"
+          ></Input>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -115,7 +144,7 @@ export default function Home() {
 
         <ScrollArea className="m-8 overflow-hidden h-5/6 lg:w-[760px] md:w-[540px] sm:w-[360px] w-[300px] p-4 rounded-md border-slate-300 border">
           <Accordion type="multiple">
-            {datas.map((data, index) => (
+            {showDatas.map((data, index) => (
               <AccordionItem key={index} value={data.word}>
                 <AccordionTrigger className="lg:text-2xl text-slate-800 md:text-xl m-1">
                   {data.word}
