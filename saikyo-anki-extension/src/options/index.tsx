@@ -7,10 +7,8 @@ import Options from './Options';
 
 proxyStore.ready().then(() => {
   createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
       <Provider store={proxyStore}>
         <Options />
       </Provider>
-    </React.StrictMode>
   );
 });
