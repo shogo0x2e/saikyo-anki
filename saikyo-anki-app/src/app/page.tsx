@@ -3,7 +3,6 @@
 import Login from "@/component/auth/login";
 import Logout from "@/component/auth/logout";
 import { useSession } from "next-auth/react";
-("use client");
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -47,6 +46,14 @@ const datas = wordsData;
 
 export default function Home() {
   const { data: session, status } = useSession();
+  //コンボボックス
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    console.log("Search");
+    console.log(sortVariables);
+  }, []);
   return (
     <main className="flexgrow flex justify-center  lg:mx-8 h-main">
       <div className="mt-8">
