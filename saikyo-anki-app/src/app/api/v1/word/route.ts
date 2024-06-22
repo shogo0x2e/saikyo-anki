@@ -1,4 +1,5 @@
 import openai from "@/lib/openai";
+import prisma from "@/lib/prisma";
 
 import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
@@ -47,7 +48,27 @@ export const POST = async (req: NextRequest) => {
     model: "gpt-4o",
   });
 
-  return NextResponse.json({
-    message: chatCompletion.choices[0].message.content,
+  const aiExplanation = chatCompletion.choices[0].message.content;
+  if (!aiExplanation) {
+    return NextResponse.json({ error: "Failed to generate AI explanation" }, { status: 500 });
+  }
+
+  const existingWord = await prisma.word.findUnique({
+    where: {
+      content: word,
+    },
   });
+
+  if (existingWord) {
+    return NextResponse.json(existingWord);
+  }
+
+  const createdWord = await prisma.word.create({
+    data: {
+      content: word,
+      aiExplanation,
+    },
+  });
+
+  return NextResponse.json(createdWord);
 };
