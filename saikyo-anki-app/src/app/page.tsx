@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import WordsList from "@/components/home/words-list";
-import { useRouter } from "next/router";
-import { Content } from "next/font/google";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-option";
 
 export default async function Home({
   searchParams,
@@ -10,7 +10,20 @@ export default async function Home({
 }) {
   const search = searchParams?.search;
   const sort = searchParams?.sort;
-  const userId = "clxqbwc4q0000ita3ad8w5gnx";
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    return <>ログインしてぐたさい</>;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email!,
+    },
+  });
+  if (!user) {
+    return <>ログインしてください</>;
+  }
+  const userId = user.email;
   let Words: any[] = [],
     Highlights: any[] = [],
     SearchLogs: any[] = [];
@@ -26,19 +39,13 @@ export default async function Home({
           ],
         },
       },
+      orderBy: {
+        lastHighlightedAt: "asc",
+      },
       include: {
         word: true,
         searchLogs: true,
       },
-    });
-    Highlights.sort((a, b) => {
-      const aEarliestDate = Math.min(
-        ...a.searchLogs.map((a: any) => new Date(a.createdAt).getTime()),
-      );
-      const bEarliestDate = Math.min(
-        ...b.searchLogs.map((b: any) => new Date(b.createdAt).getTime()),
-      );
-      return aEarliestDate - bEarliestDate;
     });
     Words = Highlights.map((highlight) => highlight.word);
     //console.log(Words);
@@ -92,7 +99,7 @@ export default async function Home({
       <WordsList
         words={Words}
         number={Highlights.map((highlight) => highlight.searchLogs.length)}
-        time={["2024-06-22T16:22:48.188Z", "2024-06-22T16:22:48.188Z"]}
+        time={Highlights.map((highlight) => highlight.lastHighlightedAt)}
       />
     </main>
   );
