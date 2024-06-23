@@ -23,7 +23,7 @@ export default async function Home({
   if (!user) {
     return <>ログインしてください</>;
   }
-  const userId = user.email;
+  const userId = user.id;
   let Words: any[] = [],
     Highlights: any[] = [],
     SearchLogs: any[] = [];
