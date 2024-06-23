@@ -1,162 +1,99 @@
-"use client";
+import prisma from "@/lib/prisma";
+import WordsList from "@/components/home/words-list";
+import { useRouter } from "next/router";
+import { Content } from "next/font/google";
 
-import Login from "@/component/auth/login";
-import Logout from "@/component/auth/logout";
-import { useSession } from "next-auth/react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Input } from "@/components/ui/input";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { ChevronsDown, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { search?: string; sort?: string };
+}) {
+  const search = searchParams?.search;
+  const sort = searchParams?.sort;
+  const userId = "clxqbwc4q0000ita3ad8w5gnx";
+  let Words: any[] = [],
+    Highlights: any[] = [],
+    SearchLogs: any[] = [];
 
-const sortVariables = [
-  {
-    value: "update-time",
-    label: "Update-Time",
-  },
-  {
-    value: "number-of-searches",
-    label: "Number-Of-Searches",
-  },
-];
+  if (sort === "update-time") {
+    Highlights = await prisma.highlight.findMany({
+      where: {
+        userId: userId,
+        word: {
+          OR: [
+            { content: { contains: search, mode: "insensitive" } },
+            //{ aiExplanation: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      },
+      include: {
+        word: true,
+        searchLogs: true,
+      },
+    });
+    Highlights.sort((a, b) => {
+      const aEarliestDate = Math.min(
+        ...a.searchLogs.map((a: any) => new Date(a.createdAt).getTime()),
+      );
+      const bEarliestDate = Math.min(
+        ...b.searchLogs.map((b: any) => new Date(b.createdAt).getTime()),
+      );
+      return aEarliestDate - bEarliestDate;
+    });
+    Words = Highlights.map((highlight) => highlight.word);
+    //console.log(Words);
+  } else if (sort === "number-of-searches") {
+    Highlights = await prisma.highlight.findMany({
+      where: {
+        userId: userId,
+        word: {
+          OR: [
+            { content: { contains: search, mode: "insensitive" } },
+            //{ aiExplanation: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      },
+      include: {
+        word: true,
+        searchLogs: true,
+      },
+    });
 
-//ダミーデータ
-import wordsData from "./dumm";
-const datas = wordsData;
-
-export default function Home() {
-  const { data: session, status } = useSession();
-  //コンボボックス
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-
-  //フリーワード検索
-  const [inputValue, setInputValue] = useState("");
-  const [showDatas, setShowDatas] = useState(datas);
-
-  useEffect(() => {
-    console.log("Search");
-    console.log(sortVariables);
-  }, []);
-
-  const handleInputChanged = (e) => {
-    setInputValue(e.target.value);
-    search(e.target.value);
-  };
-
-  const search = (value) => {
-    if (value === "") {
-      setShowDatas(datas);
-      return;
-    }
-
-    const searchedDatas = datas.filter(
-      (data) =>
-        Object.values(data).filter(
-          (word) =>
-            word !== undefined &&
-            word !== null &&
-            word.toUpperCase().indexOf(value.toUpperCase()) !== -1,
-        ).length > 0,
-    );
-    setShowDatas(searchedDatas);
-  };
+    Highlights.sort((a, b) => b.searchLogs.length - a.searchLogs.length);
+    Words = Highlights.map((highlight) => highlight.word);
+  } else {
+    Highlights = await prisma.highlight.findMany({
+      where: {
+        userId: userId,
+        word: {
+          OR: [
+            { content: { contains: `${search}`, mode: "insensitive" } },
+            //{ aiExplanation: { contains: `${search}`, mode: "insensitive" } },
+          ],
+        },
+      },
+      include: {
+        word: true,
+        searchLogs: true,
+      },
+    });
+    Highlights.sort((a, b) => {
+      const contentA = a.word.content.toLowerCase();
+      const contentB = b.word.content.toLowerCase();
+      if (contentA < contentB) return -1;
+      if (contentA > contentB) return 1;
+      return 0;
+    });
+    Words = Highlights.map((highlight) => highlight.word);
+  }
 
   return (
-    <main className="flexgrow flex justify-center  lg:mx-8 h-main">
-      <div className="mt-8">
-        <div className="flex flex-wrap mx-8">
-          <Input
-            type="text"
-            value={inputValue}
-            onChange={handleInputChanged}
-            className="w-[240px] mr-auto"
-            placeholder="Search"
-          ></Input>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-[200px] justify-between"
-              >
-                {value
-                  ? sortVariables.find(
-                      (sortVariable) => sortVariable.value === value,
-                    )?.label
-                  : "Select"}
-                <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Search" />
-                <CommandEmpty>No SortVariables found.</CommandEmpty>
-                <CommandGroup>
-                  <CommandList>
-                    {sortVariables.map((sortVariable, index) => (
-                      <CommandItem
-                        key={index}
-                        value={sortVariable.value}
-                        onSelect={(currentValue) => {
-                          setValue(currentValue === value ? "" : currentValue);
-                          setOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            value === sortVariable.value
-                              ? "opacity-100"
-                              : "opacity-0",
-                          )}
-                        />
-                        {sortVariable.label}
-                      </CommandItem>
-                    ))}
-                  </CommandList>
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <ScrollArea className="m-8 overflow-hidden h-5/6 lg:w-[760px] md:w-[540px] sm:w-[360px] w-[300px] p-4 rounded-md border-slate-300 border">
-          <Accordion type="multiple">
-            {showDatas.map((data, index) => (
-              <AccordionItem key={index} value={data.word}>
-                <AccordionTrigger className="lg:text-2xl text-slate-800 md:text-xl m-1">
-                  {data.word}
-                </AccordionTrigger>
-                <AccordionContent className="lg:text-xl text-slate-700 md:text-base p-2 mb-2 mx-2">
-                  {data.definition}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </ScrollArea>
-      </div>
+    <main className="flex-grow flex justify-center lg:mx-8 h-main">
+      <WordsList
+        words={Words}
+        number={Highlights.map((highlight) => highlight.searchLogs.length)}
+        time={["2024-06-22T16:22:48.188Z", "2024-06-22T16:22:48.188Z"]}
+      />
     </main>
   );
 }

@@ -50,7 +50,10 @@ export const POST = async (req: NextRequest) => {
 
   const aiExplanation = chatCompletion.choices[0].message.content;
   if (!aiExplanation) {
-    return NextResponse.json({ error: "Failed to generate AI explanation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to generate AI explanation" },
+      { status: 500 },
+    );
   }
 
   const existingWord = await prisma.word.findUnique({
