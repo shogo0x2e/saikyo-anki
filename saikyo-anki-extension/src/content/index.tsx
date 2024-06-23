@@ -9,6 +9,7 @@ import { SessionStorageController}   from './sessionStorageController';
 chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
   if (message.type === 'SHOW') {
     const selection = window.getSelection();
+
     if (selection !== undefined && selection !== null && selection.toString() !== undefined) {
       console.log("create dialog");
       const oRange = selection.getRangeAt(0);
@@ -18,22 +19,34 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       }
 
       const extentionRootLength = document.getElementsByTagName('my-extension-root').length;
-      SessionStorageController.addTmpText('translatedText', message.data.translatedText.toString());
-      SessionStorageController.addTmpText('originalText', message.data.originalText.toString());
-      if(extentionRootLength === 0) {
+      SessionStorageController.addTmpText('searchedDatas', message.data.searchedData);
+      SessionStorageController.addTmpText('registered', false);
+      if(SessionStorageController.getTmpTexts('rect')[0] == undefined) {
         SessionStorageController.removeTmpText('rect');
         SessionStorageController.addTmpText('rect', rectToJson(oRect));
       }
 
       const container = document.createElement('my-extension-root');
       document.body.after(container);
+
+      const existingDialogs = document.getElementsByClassName('my-dialog-box');
+      Array.from(existingDialogs).forEach(dialog => {
+        if (document.contains(dialog)) {
+          dialog.remove();
+        } else {
+          console.log('Trying to remove a dialog that is not in the document:', dialog);
+        }
+      });
+
+
       createRoot(container).render(
         
           <MantineProvider>
             <Content
               orect={jsonToRects(SessionStorageController.getTmpTexts('rect'))}
-              translatedText={SessionStorageController.getTmpTexts('translatedText')}
-              originalText={SessionStorageController.getTmpTexts('originalText')}
+              searchedDatas={SessionStorageController.getTmpTexts('searchedDatas')}
+              registered={SessionStorageController.getTmpTexts('registered')}
+              email = {message.data.lang}
             />
           </MantineProvider>
         
@@ -77,8 +90,9 @@ document.addEventListener('mouseup', () => {
 
 //when the page is reloaded, remove the temporary data
 window.addEventListener('beforeunload', function(){
-  SessionStorageController.removeTmpText('translatedText');
-    SessionStorageController.removeTmpText('originalText');
+  SessionStorageController.removeTmpText('searchedDatas');
+              //searchTexts={SessionStorageController.getTmpTexts('searchTexts')}
+    SessionStorageController.removeTmpText('registered');
     SessionStorageController.removeTmpText('rect');
 });
 
@@ -119,7 +133,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
         }}
         onClick={handleClick}
       >
-        <Tooltip label="選択したテキストを翻訳" withArrow>
+        <Tooltip label="選択したテキストの解説を生成" withArrow>
           <ActionIcon
             radius="xl"
             variant="default"
@@ -136,7 +150,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
                 zIndex: 2147483551,
               }}
             >
-              <Image src={chrome.runtime.getURL('images/extension_128.png')} />
+              <Image src={chrome.runtime.getURL('images/saikyo_anki_icon_128.png')} />
             </div>
           </ActionIcon>
         </Tooltip>
@@ -176,3 +190,5 @@ function jsonToRects(jsonArray: string[]): { x: number, y: number, width: number
     };
   });
 }
+
+

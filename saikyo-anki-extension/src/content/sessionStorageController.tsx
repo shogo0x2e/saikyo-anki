@@ -1,26 +1,19 @@
 export class SessionStorageController{
-    static addTmpText(itemName: string, addText: string) {
-        // sessionStorage から既存の translatedText 配列を取得
+    static addTmpText(itemName: string, addData) {
         const existingTexts = sessionStorage.getItem(itemName);
-        const translatedTexts = existingTexts ? JSON.parse(existingTexts) : [];
+        const explanationTexts = existingTexts ? JSON.parse(existingTexts) : [];
       
-        // 新しいテキストを配列に追加
-        translatedTexts.push(addText);
-      
-        // 配列を JSON 文字列に変換して保存
-        sessionStorage.setItem(itemName, JSON.stringify(translatedTexts));
+        explanationTexts.push(addData);
+        sessionStorage.setItem(itemName, JSON.stringify(explanationTexts));
       }
       
-      static replaceTmpText(itemName: string,index: int, newText: string) {
-        // sessionStorage から既存の translatedTexts 配列を取得
+      static replaceTmpText(itemName: string,index: int, newData) {
         const existingTexts = sessionStorage.getItem(itemName);
-        let translatedTexts = existingTexts ? JSON.parse(existingTexts) : [];
-      
-        // 指定されたインデックスが配列の範囲内にある場合にのみ置き換えを行う
-        if (index >= 0 && index < translatedTexts.length) {
-          translatedTexts[index] = newText;
-          // 更新された配列を JSON 文字列に変換して保存
-          sessionStorage.setItem(itemName, JSON.stringify(translatedTexts));
+        let explanationTexts = existingTexts ? JSON.parse(existingTexts) : [];
+
+        if (index >= 0 && index < explanationTexts.length) {
+          explanationTexts[index] = newData;
+          sessionStorage.setItem(itemName, JSON.stringify(explanationTexts));
         } else {
           console.error('Invalid index for replacement');
         }

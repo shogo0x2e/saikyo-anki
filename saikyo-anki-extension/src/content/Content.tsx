@@ -1,6 +1,14 @@
 import { DialogBox, DialogBoxProps } from "./DialogBox";
 
 const Content = (props: DialogBoxProps & { orect: DOMRect }) => {
+  const existingDialogs = document.getElementsByClassName('my-dialog-box');
+  Array.from(existingDialogs).forEach(dialog => {
+    if (document.contains(dialog)) {
+      dialog.remove();
+    } else {
+      console.log('Trying to remove a dialog that is not in the document:', dialog);
+    }
+  });
   return (
     <div
       style={{
@@ -19,6 +27,7 @@ const Content = (props: DialogBoxProps & { orect: DOMRect }) => {
           zIndex: 2147483550,
         }}
       >
+        
         <DialogBox {...props} />
       </div>
     </div>
