@@ -35,12 +35,12 @@ export const POST = async (req: NextRequest) => {
   const authHeader = req.headers.get("Authorization");
   const bearerToken = authHeader && authHeader.split(" ")[1];
   if (!bearerToken || bearerToken !== process.env.API_SECRET_TOKEN) {
-    return NextResponse.json({ error: "Unauthorized!!" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { word, email, url } = await req.json();
   if (!word || !email) {
-    return nextResponseWithCORS(
+    return NextResponse.json(
       { error: "Word or email is required" },
       { status: 400 },
     );
@@ -53,7 +53,7 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!user) {
-    return nextResponseWithCORS({ error: "User not found" }, { status: 400 });
+    return NextResponse.json({ error: "User not found" }, { status: 400 });
   }
 
   const chatCompletion = await openai.chat.completions.create({
@@ -63,7 +63,7 @@ export const POST = async (req: NextRequest) => {
 
   const aiExplanation = chatCompletion.choices[0].message.content;
   if (!aiExplanation) {
-    return nextResponseWithCORS(
+    return NextResponse.json(
       { error: "Failed to generate AI explanation" },
       { status: 500 },
     );
@@ -83,7 +83,7 @@ export const POST = async (req: NextRequest) => {
       },
     });
 
-    return nextResponseWithCORS(createdWord);
+    return NextResponse.json(createdWord);
   }
 
   // highlight と search_log を作成する
@@ -112,16 +112,5 @@ export const POST = async (req: NextRequest) => {
     });
   }
 
-  return nextResponseWithCORS(existingWord);
-};
-
-const nextResponseWithCORS = (params: any, options?: any) => {
-  const response = NextResponse.json(params, {
-    ...options,
-    headers: {
-      ...options?.headers,
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
-  return response;
+  return NextResponse.json(existingWord);
 };
