@@ -26,6 +26,19 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  const existingHighlight = await prisma.highlight.findUnique({
+    where: {
+      userId_wordId: {
+        userId: user.id,
+        wordId,
+      },
+    },
+  });
+
+  if (existingHighlight) {
+    return NextResponse.json({ error: "Highlight already exists" }, { status: 400 });
+  }
+
   const createdHighlight = await prisma.highlight.create({
     data: {
       userId: user.id,
