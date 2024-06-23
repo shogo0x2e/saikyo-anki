@@ -7,8 +7,8 @@ import { version } from '../package.json';
 
 const manifest = defineManifest(async (env) => ({
   manifest_version: 3,
-  name: `${env.mode === 'development' ? '[Dev] ' : ''}Browser Extension TypeScript & React Starter`,
-  description: 'Browser Extension, TypeScript, React',
+  name: `${env.mode === 'development' ? '[Dev] ' : ''}最強暗記`,
+  description: 'ハイライトした単語の解説を生成します．また，生成した解説を単語帳に追加することができます．',
   version,
   background: {
     service_worker: 'background/index.ts',

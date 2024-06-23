@@ -1,5 +1,5 @@
 import { getBucket } from '@extend-chrome/storage';
-import { Container, TextInput, Text, Anchor } from '@mantine/core';
+import { Container, TextInput, Text, Anchor, Button, Image } from '@mantine/core';
 import { useEffect, useState } from 'react';
 
 interface UserDataBucket {
@@ -40,20 +40,36 @@ const Popup = () => {
     setEmail(newEmail);
   };
 
+  const IconUrl = chrome.runtime.getURL('images/saikyo_anki_icon_128.png');
+
   return (
-    <Container p="xl">
-      <TextInput
-        label="登録済のEmailアドレスを入力"
-        value={email}
-        onChange={saveEmail}
-        placeholder="your-email@example.com"
-        clearable
-        error={emailError}
-      />
-      <Text align="center" mt="md">
-        <Anchor href="https://saikyo-anki.vercel.app/auth/sign-in?callbackUrl=https%3A%2F%2Fsaikyo-anki.vercel.app%2F" target="_blank">新規登録</Anchor>
-      </Text>
-    </Container>
+    <Container p="xl" style={{ textAlign: 'center' }}>
+    <Image src={IconUrl} alt="Saikyo Anki Icon" width={128} height={128} style={{ margin: '0 auto 20px' }} />
+    <TextInput
+      label="登録済のEmailアドレスを入力"
+      value={email}
+      onChange={saveEmail}
+      placeholder="your-email@example.com"
+      clearable
+      error={emailError}
+      style={{ marginBottom: '20px' }}
+    />
+    <Text align="center" mt="md">
+      <Anchor href="https://saikyo-anki.vercel.app/auth/sign-in?callbackUrl=https%3A%2F%2Fsaikyo-anki.vercel.app%2F" target="_blank">
+        新規登録
+      </Anchor>
+    </Text>
+    <Text align="center" mt="md">
+      <Button
+        component="a"
+        href="https://saikyo-anki.vercel.app/auth/sign-in?callbackUrl=https%3A%2F%2Fsaikyo-anki.vercel.app%2F"
+        target="_blank"
+        style={{ backgroundColor: '#007BFF', color: '#fff', marginTop: '20px' }}
+      >
+        単語帳を開く
+      </Button>
+    </Text>
+  </Container>
   );
 };
 

@@ -8,8 +8,6 @@ const BEARER = 'MErGQyaEMr7cm16/Uoi0edgj/xO8Wg2+lEc25V/LQLQ=';
 const email = userEmail;
 const wordId = registeredWordId;
 
-console.log(email, wordId);
-
 const url = API_URL ;
 const res = await fetch(url, {
   method: 'POST',
