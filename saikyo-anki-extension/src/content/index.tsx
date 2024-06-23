@@ -141,6 +141,7 @@ const Icon = ({ selectedText, orect }: { selectedText: string; orect: DOMRect })
             sx={{
               boxShadow: '0 0 10px rgba(0,0,0,.3);',
               zIndex: 2147483551,
+              backgroundColor: 'white',
             }}
           >
             <div
