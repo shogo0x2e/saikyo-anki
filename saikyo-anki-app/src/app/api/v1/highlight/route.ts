@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-
   // 一旦 bearer token で認証する
   const authHeader = req.headers.get("Authorization");
   const bearerToken = authHeader && authHeader.split(" ")[1];
@@ -10,10 +9,12 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-
   const { email, wordId } = await req.json();
   if (!email || !wordId) {
-    return NextResponse.json({ error: "Email and wordId are required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Email and wordId are required" },
+      { status: 400 },
+    );
   }
 
   const user = await prisma.user.findUnique({
@@ -46,7 +47,10 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (existingHighlight) {
-    return NextResponse.json({ error: "Highlight already exists" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Highlight already exists" },
+      { status: 400 },
+    );
   }
 
   const createdHighlight = await prisma.highlight.create({
@@ -56,6 +60,12 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
+  await prisma.searchLog.create({
+    data: {
+      highlightId: createdHighlight.id,
+      url: "no url",
+    },
+  });
 
   return NextResponse.json(createdHighlight);
 };
