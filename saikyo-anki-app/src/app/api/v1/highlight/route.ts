@@ -9,7 +9,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { email, wordId } = await req.json();
+  const { email, wordId, url } = await req.json();
   if (!email || !wordId) {
     return NextResponse.json(
       { error: "Email and wordId are required" },
@@ -63,7 +63,7 @@ export const POST = async (req: NextRequest) => {
   await prisma.searchLog.create({
     data: {
       highlightId: createdHighlight.id,
-      url: "no url",
+      url: url ?? "no url",
     },
   });
 
