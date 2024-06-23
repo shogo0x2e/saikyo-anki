@@ -4,7 +4,7 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 
-import Login from "@/component/auth/login";
+import Login from "@/components/auth/login";
 import { authOptions } from "@/lib/auth-option";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
