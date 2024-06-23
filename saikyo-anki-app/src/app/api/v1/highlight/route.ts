@@ -26,6 +26,16 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  const specifiedWord = await prisma.word.findUnique({
+    where: {
+      id: wordId,
+    },
+  });
+
+  if (!specifiedWord) {
+    return NextResponse.json({ error: "Word not found" }, { status: 404 });
+  }
+
   const existingHighlight = await prisma.highlight.findUnique({
     where: {
       userId_wordId: {
@@ -42,7 +52,7 @@ export const POST = async (req: NextRequest) => {
   const createdHighlight = await prisma.highlight.create({
     data: {
       userId: user.id,
-      wordId,
+      wordId: specifiedWord.id,
     },
   });
 
