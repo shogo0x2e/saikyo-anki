@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   // 一旦 bearer token で認証する
-  const authHeader = req.headers.get("Authorization");
-  const bearerToken = authHeader && authHeader.split(" ")[1];
-  if (!bearerToken || bearerToken !== process.env.API_SECRET_TOKEN) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // const authHeader = req.headers.get("Authorization");
+  // const bearerToken = authHeader && authHeader.split(" ")[1];
+  // if (!bearerToken || bearerToken !== process.env.API_SECRET_TOKEN) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
   const { email, wordId, url } = await req.json();
   if (!email || !wordId) {
