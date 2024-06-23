@@ -38,9 +38,22 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { word } = await req.json();
-  if (!word) {
-    return NextResponse.json({ error: "Word is required" }, { status: 400 });
+  const { word, email, url } = await req.json();
+  if (!word || !email) {
+    return NextResponse.json(
+      { error: "Word or email is required" },
+      { status: 400 },
+    );
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 400 });
   }
 
   const chatCompletion = await openai.chat.completions.create({
@@ -62,16 +75,42 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
-  if (existingWord) {
-    return NextResponse.json(existingWord);
+  if (!existingWord) {
+    const createdWord = await prisma.word.create({
+      data: {
+        content: word,
+        aiExplanation,
+      },
+    });
+
+    return NextResponse.json(createdWord);
   }
 
-  const createdWord = await prisma.word.create({
-    data: {
-      content: word,
-      aiExplanation,
+  // highlight と search_log を作成する
+  const existingHighlight = await prisma.highlight.findFirst({
+    where: {
+      userId: user.id,
+      wordId: existingWord.id,
     },
   });
 
-  return NextResponse.json(createdWord);
+  if (existingHighlight) {
+    await prisma.searchLog.create({
+      data: {
+        highlightId: existingHighlight.id,
+        url: url ?? "no url",
+      },
+    });
+
+    await prisma.highlight.update({
+      where: {
+        id: existingHighlight.id,
+      },
+      data: {
+        lastHighlightedAt: new Date(),
+      },
+    });
+  }
+
+  return NextResponse.json(existingWord);
 };

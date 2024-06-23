@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Highlight" ADD COLUMN     "lastHighlightedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

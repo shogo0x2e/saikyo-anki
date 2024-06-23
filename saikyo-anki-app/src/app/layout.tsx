@@ -30,7 +30,7 @@ export default function RootLayout({
           ${NotoSansJP.className}`,
         )}
       >
-        <Header></Header>
+        <Header />
         <NextAuthProvider>{children}</NextAuthProvider>
       </body>
     </html>
