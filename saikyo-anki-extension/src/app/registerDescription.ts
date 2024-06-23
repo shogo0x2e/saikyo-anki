@@ -2,20 +2,21 @@ type Result = {
     message: string;
 };
 
-export const registerDescription = async (searchText: string, description: string) => {
-const API_URL = 'https://saikyo-anki.vercel.app/api/explanation';
+export const registerDescription = async (userEmail: string, registeredWordId: string) => {
+const API_URL = 'https://saikyo-anki.vercel.app/api/v1/highlight';
 const BEARER = 'MErGQyaEMr7cm16/Uoi0edgj/xO8Wg2+lEc25V/LQLQ=';
-const word = description;
+const email = userEmail;
+const wordId = registeredWordId;
+
+console.log(email, wordId);
 
 const url = API_URL ;
 const res = await fetch(url, {
   method: 'POST',
-  mode: 'cors',
+  mode: 'no-cors',
   headers: {
     'Authorization': `Bearer ${BEARER}`
   },
-  body: JSON.stringify({word })
+  body: JSON.stringify({ email, wordId })
 });
-const json: Result = await res.json();
-return json.message;
 };
