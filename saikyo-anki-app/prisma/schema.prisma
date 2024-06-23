@@ -24,7 +24,7 @@ model Highlight {
 model SearchLog {
   id          String    @id @default(uuid())
   highlightId String
-  url         String
+  url         String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   highlight   Highlight @relation(fields: [highlightId], references: [id])
