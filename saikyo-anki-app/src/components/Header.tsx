@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Playfair_Display } from "next/font/google";
+import Logout from "@/component/auth/logout";
 
 const PfDsp = Playfair_Display({
   weight: ["400", "700"],
@@ -20,6 +20,7 @@ const Header: React.FC = () => {
         >
           Saikyo Anki
         </a>
+        <Logout />
       </div>
     </header>
   );
