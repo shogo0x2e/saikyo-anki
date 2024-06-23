@@ -1,5 +1,5 @@
 import { Playfair_Display } from "next/font/google";
-import Logout from "@/component/auth/logout";
+import Logout from "@/components/auth/logout";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-option";
 import { redirect } from "next/navigation";
