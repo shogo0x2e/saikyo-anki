@@ -8,14 +8,15 @@ generator client {
 }
 
 model Highlight {
-  id         String      @id @default(uuid())
-  userId     String
-  wordId     String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  user       User        @relation(fields: [userId], references: [id])
-  word       Word        @relation(fields: [wordId], references: [id])
-  searchLogs SearchLog[]
+  id                String      @id @default(uuid())
+  userId            String
+  wordId            String
+  lastHighlightedAt DateTime    @default(now())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  user              User        @relation(fields: [userId], references: [id])
+  word              Word        @relation(fields: [wordId], references: [id])
+  searchLogs        SearchLog[]
 
   @@unique([userId, wordId])
 }
