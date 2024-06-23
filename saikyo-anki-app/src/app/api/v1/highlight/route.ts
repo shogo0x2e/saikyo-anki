@@ -6,12 +6,12 @@ export const POST = async (req: NextRequest) => {
   const authHeader = req.headers.get("Authorization");
   const bearerToken = authHeader && authHeader.split(" ")[1];
   if (!bearerToken || bearerToken !== process.env.API_SECRET_TOKEN) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return nextResponseWithCORS({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { email, wordId, url } = await req.json();
   if (!email || !wordId) {
-    return NextResponse.json(
+    return nextResponseWithCORS(
       { error: "Email and wordId are required" },
       { status: 400 },
     );
@@ -24,7 +24,7 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return nextResponseWithCORS({ error: "User not found" }, { status: 404 });
   }
 
   const specifiedWord = await prisma.word.findUnique({
@@ -34,7 +34,7 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!specifiedWord) {
-    return NextResponse.json({ error: "Word not found" }, { status: 404 });
+    return nextResponseWithCORS({ error: "Word not found" }, { status: 404 });
   }
 
   const existingHighlight = await prisma.highlight.findUnique({
@@ -47,9 +47,11 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (existingHighlight) {
-    return NextResponse.json(
+    return nextResponseWithCORS(
       { error: "Highlight already exists" },
-      { status: 400 },
+      {
+        status: 400,
+      },
     );
   }
 
@@ -67,5 +69,16 @@ export const POST = async (req: NextRequest) => {
     },
   });
 
-  return NextResponse.json(createdHighlight);
+  return nextResponseWithCORS(createdHighlight);
+};
+
+const nextResponseWithCORS = (params: any, options?: any) => {
+  const response = NextResponse.json(params, {
+    ...options,
+    headers: {
+      ...options.headers,
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return response;
 };

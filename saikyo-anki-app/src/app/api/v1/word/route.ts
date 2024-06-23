@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
 
   const { word, email, url } = await req.json();
   if (!word || !email) {
-    return NextResponse.json(
+    return nextResponseWithCORS(
       { error: "Word or email is required" },
       { status: 400 },
     );
@@ -53,7 +53,7 @@ export const POST = async (req: NextRequest) => {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 400 });
+    return nextResponseWithCORS({ error: "User not found" }, { status: 400 });
   }
 
   const chatCompletion = await openai.chat.completions.create({
@@ -63,7 +63,7 @@ export const POST = async (req: NextRequest) => {
 
   const aiExplanation = chatCompletion.choices[0].message.content;
   if (!aiExplanation) {
-    return NextResponse.json(
+    return nextResponseWithCORS(
       { error: "Failed to generate AI explanation" },
       { status: 500 },
     );
@@ -83,7 +83,7 @@ export const POST = async (req: NextRequest) => {
       },
     });
 
-    return NextResponse.json(createdWord);
+    return nextResponseWithCORS(createdWord);
   }
 
   // highlight と search_log を作成する
@@ -112,5 +112,16 @@ export const POST = async (req: NextRequest) => {
     });
   }
 
-  return NextResponse.json(existingWord);
+  return nextResponseWithCORS(existingWord);
+};
+
+const nextResponseWithCORS = (params: any, options?: any) => {
+  const response = NextResponse.json(params, {
+    ...options,
+    headers: {
+      ...options?.headers,
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return response;
 };
