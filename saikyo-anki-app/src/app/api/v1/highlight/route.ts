@@ -76,7 +76,7 @@ const nextResponseWithCORS = (params: any, options?: any) => {
   const response = NextResponse.json(params, {
     ...options,
     headers: {
-      ...options.headers,
+      ...options?.headers,
       "Access-Control-Allow-Origin": "*",
     },
   });
