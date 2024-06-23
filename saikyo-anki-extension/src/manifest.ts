@@ -7,8 +7,8 @@ import { version } from '../package.json';
 
 const manifest = defineManifest(async (env) => ({
   manifest_version: 3,
-  name: `${env.mode === 'development' ? '[Dev] ' : ''}Browser Extension TypeScript & React Starter`,
-  description: 'Browser Extension, TypeScript, React',
+  name: `${env.mode === 'development' ? '[Dev] ' : ''}最強暗記`,
+  description: 'ハイライトした単語の解説を生成します．また，生成した解説を単語帳に追加することができます．',
   version,
   background: {
     service_worker: 'background/index.ts',
@@ -36,19 +36,19 @@ const manifest = defineManifest(async (env) => ({
   action: {
     default_popup: 'popup/popup.html',
     default_icon: {
-      '16': 'images/extension_16.png',
-      '32': 'images/extension_32.png',
-      '48': 'images/extension_48.png',
-      '128': 'images/extension_128.png',
+      '16': 'images/saikyo_anki_icon_16.png',
+      '32': 'images/saikyo_anki_icon_32.png',
+      '48': 'images/saikyo_anki_icon_48.png',
+      '128': 'images/saikyo_anki_icon_128.png',
     },
   },
   icons: {
-    '16': 'images/extension_16.png',
-    '32': 'images/extension_32.png',
-    '48': 'images/extension_48.png',
-    '128': 'images/extension_128.png',
+    '16': 'images/saikyo_anki_icon_16.png',
+    '32': 'images/saikyo_anki_icon_32.png',
+    '48': 'images/saikyo_anki_icon_48.png',
+    '128': 'images/saikyo_anki_icon_128.png',
   },
-  permissions: ['storage', 'tabs'],
+  permissions: ['storage', 'tabs', 'contextMenus'],
 }));
 
 export default manifest;
