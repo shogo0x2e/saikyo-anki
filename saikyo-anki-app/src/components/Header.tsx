@@ -1,5 +1,8 @@
 import { Playfair_Display } from "next/font/google";
 import Logout from "@/component/auth/logout";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-option";
+import { redirect } from "next/navigation";
 
 const PfDsp = Playfair_Display({
   weight: ["400", "700"],
@@ -7,7 +10,9 @@ const PfDsp = Playfair_Display({
   preload: true,
 });
 
-const Header: React.FC = () => {
+const Header: React.FC = async () => {
+  const session = await getServerSession(authOptions);
+
   return (
     <header
       className={
@@ -20,7 +25,7 @@ const Header: React.FC = () => {
         >
           Saikyo Anki
         </a>
-        <Logout />
+        {session && <Logout />}
       </div>
     </header>
   );

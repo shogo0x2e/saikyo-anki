@@ -1,22 +1,20 @@
+"use client";
+
 import React from "react";
-import { useSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { FaGoogle } from "react-icons/fa";
 
 export default function Login() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (status !== "authenticated") {
-    return (
-      <div>
-        <p>あなたはログインしていません</p>
-        <button onClick={() => signIn("google", {}, { prompt: "login" })}>
-          Googleでログイン
-        </button>
+  return (
+    <Button
+      variant="outline"
+      className="w-full flex items-center justify-center space-x-2"
+      onClick={() => signIn("google", {}, { prompt: "login" })}
+    >
+      <div className="flex items-center">
+        Sign in with Google <FaGoogle className="ml-2" />
       </div>
-    );
-  }
-  return null;
+    </Button>
+  );
 }
