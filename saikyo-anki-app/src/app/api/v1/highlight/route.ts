@@ -6,7 +6,7 @@ export const POST = async (req: NextRequest) => {
   const authHeader = req.headers.get("Authorization");
   const bearerToken = authHeader && authHeader.split(" ")[1];
   if (!bearerToken || bearerToken !== process.env.API_SECRET_TOKEN) {
-    return nextResponseWithCORS({ error: "Unauthorized" }, { status: 401 });
+    return nextResponseWithCORS({ error: "Unauthorized!!" }, { status: 401 });
   }
 
   const { email, wordId, url } = await req.json();
